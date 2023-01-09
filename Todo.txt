@@ -1,0 +1,1 @@
+Left off at line 95 need to add a column of 1s and compute f ( sum of squares of each coordinates).
