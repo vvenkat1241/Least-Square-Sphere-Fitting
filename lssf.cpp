@@ -9,7 +9,7 @@
 #include <math.h>
 
 using namespace std;
-using namespace std::chrono;
+// using namespace std::chrono;
 using namespace Eigen;
 
 // void saveData(string fileName, MatrixXd matrix){
@@ -76,8 +76,8 @@ MatrixXd openData(string fileToOpen)
  
 int main()
 {
-   vector<int> values(10000);
-   auto start = high_resolution_clock::now();
+   // vector<int> values(10000);
+   // auto start = high_resolution_clock::now();
    // int n;
    // int flag=0;
    // ifstream inputFile;
@@ -92,20 +92,32 @@ int main()
    // B.resize(A.rows(),3);
 
    MatrixXd B = A.block(0, 0, A.rows(), 3);
-
+   
+   
+   B.resize(A.rows(),4);
+   // B.col(B.cols()-1)= id;
    cout<<B;
 
-   VectorXd f(3);
-   f << 1, 1, 1;
-   cout << "Here is the right hand side f:\n" << f <<endl;
-   cout << "The least-squares solution using normal equations is:\n"
-        << (B.transpose() * B).ldlt().solve(B.transpose() * f) <<endl;
+   MatrixXd f;
+   // f = 
+   // f << 1, 1, 1;
+   // f(0,0) = 1;
+   // f(1,0) = 1;
+   // f(2,0) = 1;
+   
+   cout << "\nHere is the right hand side f:\n" << f <<endl;
+   cout << "The least-squares solution using normal equations is:\n";
+      //   << (B.transpose() * B).ldlt().solve(B.transpose() * f) <<endl;
       // <<(((B.transpose() * B).inverse())*B.transpose())* f<< endl;
+   MatrixXd temp1 = (B.transpose() * B).inverse();
+   MatrixXd temp2 = temp1 * B.transpose();
+   MatrixXd sol = temp2 * f;
+   cout<<sol;
 
-   auto stop = high_resolution_clock::now();
-   auto duration = duration_cast<microseconds>(stop - start);
-   std::cout << "Time taken by function: "
-         << duration.count() << " microseconds" << endl;
+   // auto stop = high_resolution_clock::now();
+   // auto duration = duration_cast<microseconds>(stop - start);
+   // std::cout << "Time taken by function: "
+   //       << duration.count() << " microseconds" << endl;
 
 //    std::cout << "The least-squares solutions using JacobiSVD is:\n"
 //         << A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f) << std::endl;
