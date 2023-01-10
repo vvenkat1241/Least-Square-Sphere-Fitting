@@ -92,27 +92,39 @@ int main()
    // B.resize(A.rows(),3);
 
    MatrixXd B = A.block(0, 0, A.rows(), 3);
+
+   double l2n = B.squaredNorm();
    
-   
-   B.resize(A.rows(),4);
-   // B.col(B.cols()-1)= id;
-   cout<<B;
+   MatrixXd id(A.rows(),1);
+   for(int i=0; i<A.rows(); i++){
+    id(i) = 1;
+   }
 
    MatrixXd f;
-   // f = 
-   // f << 1, 1, 1;
-   // f(0,0) = 1;
-   // f(1,0) = 1;
-   // f(2,0) = 1;
+
+   for(int i=0; i<B.rows(); i++){
+    f = B.rowwise().squaredNorm();
+   }
+
+//    cout<<f;
    
-   cout << "\nHere is the right hand side f:\n" << f <<endl;
-   cout << "The least-squares solution using normal equations is:\n";
-      //   << (B.transpose() * B).ldlt().solve(B.transpose() * f) <<endl;
-      // <<(((B.transpose() * B).inverse())*B.transpose())* f<< endl;
-   MatrixXd temp1 = (B.transpose() * B).inverse();
-   MatrixXd temp2 = temp1 * B.transpose();
-   MatrixXd sol = temp2 * f;
-   cout<<sol;
+   B.resize(A.rows(),4);
+   B.col(B.cols()-1)= id;
+
+   MatrixXd sol = (((B.transpose() * B).inverse())*B.transpose())* f;
+//    cout<<B;
+   
+//    cout << "\nHere is the right hand side f:\n" << f <<endl;
+   cout << "The least-squares solution using normal equations is:\n"
+//       //   << (B.transpose() * B).ldlt().solve(B.transpose() * f) <<endl;
+      <<sol<< endl;
+
+   cout<<"Coordinates of the center is : ("<<sol(0)/2<<", "<<sol(1)/2<<", "<<sol(2)/2<<")"<<endl;
+   cout<<"Radius of the sphere is : "<<sqrt(sol(3)+(pow(sol(0), 2)/4)+(pow(sol(1), 2)/4)+(pow(sol(2), 2)/4))<<endl;
+//    MatrixXd temp1 = (B.transpose() * B).inverse();
+//    MatrixXd temp2 = temp1 * B.transpose();
+//    MatrixXd sol = temp2 * f;
+//    cout<<sol;
 
    // auto stop = high_resolution_clock::now();
    // auto duration = duration_cast<microseconds>(stop - start);
