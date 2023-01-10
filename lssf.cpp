@@ -1,16 +1,15 @@
 #include <iostream>
 #include "eigen-3.4.0\Eigen\Dense"
-#include <algorithm>
 #include <chrono>
-#include<vector>
+#include <vector>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <math.h>
 
 using namespace std;
-// using namespace std::chrono;
 using namespace Eigen;
+
 
 // void saveData(string fileName, MatrixXd matrix){
 //    const static IOFormat CSVFormat(FullPrecision, DontAlignCols,", ","\n");
@@ -73,25 +72,25 @@ MatrixXd openData(string fileToOpen)
     return Map<Matrix<double, Dynamic, Dynamic, RowMajor>>(matrixEntries.data(), matrixRowNumber, matrixEntries.size() / matrixRowNumber);
  
 }
+
+MatrixXd dista(MatrixXd &points, MatrixXd &center){
+
+    MatrixXd del = points.rowwise() - center;
+    MatrixXd dist = del.rowwise().norm();
+    // vector<double> dist;
+
+    // dist.push_back(del.rowwise().norm());
+    // return Map<Matrix<double, Dynamic, Dynamic, ColMajor>>(dist.data(), del.rows(), 1);
+    return dist;
+}
  
 int main()
 {
-   // vector<int> values(10000);
-   // auto start = high_resolution_clock::now();
-   // int n;
-   // int flag=0;
-   // ifstream inputFile;
-   // inputFile.open("incorrect.csv");
-   // string line = "";
    MatrixXd A;
-   // std::cout<<"Enter number of points: ";
-   // cin>>n;
-   // A.resize(n,3);
 
    A = openData("incorrect.csv");
-   // B.resize(A.rows(),3);
 
-   MatrixXd B = A.block(0, 0, A.rows(), 3);
+   MatrixXd B = A;
 
    double l2n = B.squaredNorm();
    
@@ -99,37 +98,56 @@ int main()
    for(int i=0; i<A.rows(); i++){
     id(i) = 1;
    }
-
-   MatrixXd f;
-
-   for(int i=0; i<B.rows(); i++){
-    f = B.rowwise().squaredNorm();
-   }
-
-//    cout<<f;
    
    B.resize(A.rows(),4);
    B.col(B.cols()-1)= id;
 
+      MatrixXd f;
+    f = A.rowwise().squaredNorm();
+    //    cout << "\nHere is the right hand side f:\n" << f <<endl;
+    //    cout<<f;
+
    MatrixXd sol = (((B.transpose() * B).inverse())*B.transpose())* f;
 //    cout<<B;
    
-//    cout << "\nHere is the right hand side f:\n" << f <<endl;
+
+
    cout << "The least-squares solution using normal equations is:\n"
 //       //   << (B.transpose() * B).ldlt().solve(B.transpose() * f) <<endl;
       <<sol<< endl;
 
-   cout<<"Coordinates of the center is : ("<<sol(0)/2<<", "<<sol(1)/2<<", "<<sol(2)/2<<")"<<endl;
-   cout<<"Radius of the sphere is : "<<sqrt(sol(3)+(pow(sol(0), 2)/4)+(pow(sol(1), 2)/4)+(pow(sol(2), 2)/4))<<endl;
+   double x0 = sol(0)/2;
+   double y0 = sol(1)/2;
+   double z0 = sol(2)/2;
+   double r = sqrt(sol(3)+pow(x0,2)+pow(y0,2)+pow(z0,2));
+
+   MatrixXd center(1,3);
+   center<<x0, y0, z0;
+
+   cout<<"Coordinates of the center is : ("<<x0<<", "<<y0<<", "<<z0<<")"<<endl;
+   cout<<"Radius of the sphere is : "<<r<<endl;
+
+   fstream output;
+
+   output.open("output.csv", ios::out);
+
+   output<<"Coordinates of the center is : ("<<x0<<", "<<y0<<", "<<z0<<")"<<endl;
+   output<<"Radius of the sphere is : "<<r<<endl;
+
+   //Cost of fitting
+   MatrixXd d;
+   d = dista(A, center);
+
+   cout<<d;
+
+   double rms;
+
+//    rms = dist.colwise().squaredNorm();
+
 //    MatrixXd temp1 = (B.transpose() * B).inverse();
 //    MatrixXd temp2 = temp1 * B.transpose();
 //    MatrixXd sol = temp2 * f;
 //    cout<<sol;
-
-   // auto stop = high_resolution_clock::now();
-   // auto duration = duration_cast<microseconds>(stop - start);
-   // std::cout << "Time taken by function: "
-   //       << duration.count() << " microseconds" << endl;
 
 //    std::cout << "The least-squares solutions using JacobiSVD is:\n"
 //         << A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f) << std::endl;
