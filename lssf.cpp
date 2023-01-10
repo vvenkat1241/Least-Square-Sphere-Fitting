@@ -73,16 +73,16 @@ MatrixXd openData(string fileToOpen)
  
 }
 
-MatrixXd dista(MatrixXd &points, MatrixXd &center){
+// MatrixXd dista(MatrixXd &points, MatrixXd &center){
 
-    MatrixXd del = points.rowwise() - center;
-    MatrixXd dist = del.rowwise().norm();
-    // vector<double> dist;
+//     MatrixXd del = points.rowwise() - center;
+// //     VectorXd dist = del.rowwise().norm();
 
-    // dist.push_back(del.rowwise().norm());
-    // return Map<Matrix<double, Dynamic, Dynamic, ColMajor>>(dist.data(), del.rows(), 1);
-    return dist;
-}
+// //     // dist.push_back(del.rowwise().norm());
+// //     return Map<Matrix<double, Dynamic, Dynamic, ColMajor>>(dist.data(), del.rows(), 1);
+//     return del;
+
+// }
  
 int main()
 {
@@ -91,8 +91,6 @@ int main()
    A = openData("incorrect.csv");
 
    MatrixXd B = A;
-
-   double l2n = B.squaredNorm();
    
    MatrixXd id(A.rows(),1);
    for(int i=0; i<A.rows(); i++){
@@ -102,7 +100,7 @@ int main()
    B.resize(A.rows(),4);
    B.col(B.cols()-1)= id;
 
-      MatrixXd f;
+    MatrixXd f;
     f = A.rowwise().squaredNorm();
     //    cout << "\nHere is the right hand side f:\n" << f <<endl;
     //    cout<<f;
@@ -121,7 +119,7 @@ int main()
    double z0 = sol(2)/2;
    double r = sqrt(sol(3)+pow(x0,2)+pow(y0,2)+pow(z0,2));
 
-   MatrixXd center(1,3);
+   RowVectorXd center(3);
    center<<x0, y0, z0;
 
    cout<<"Coordinates of the center is : ("<<x0<<", "<<y0<<", "<<z0<<")"<<endl;
@@ -136,11 +134,14 @@ int main()
 
    //Cost of fitting
    MatrixXd d;
-   d = dista(A, center);
+   MatrixXd del = A.rowwise() - center;
+   d = del.rowwise().norm();
+   MatrixXd diff = d.array() - r;
+   MatrixXd result = diff.colwise().squaredNorm()/del.rows();
+   double rms = result(0);
+   rms = sqrt(rms);
 
-   cout<<d;
-
-   double rms;
+   cout<<"The cost of fitting is : "<< rms<<endl;
 
 //    rms = dist.colwise().squaredNorm();
 
